@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <title>انیمیشن کتاب در حال ورق خوردن</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #13172b;
+      direction: rtl;
+      font-family: sans-serif;
+    }
+    .book-container {
+      position: relative;
+      width: 200px;
+      height: 140px;
+      perspective: 1200px;
+      margin-bottom: 30px;
+    }
+    .book-shadow {
+      position: absolute;
+      left: 0;
+      top: 105%;
+      width: 200px;
+      height: 38px;
+      background: radial-gradient(ellipse at center, rgba(0,16,56,0.25) 0%, rgba(0,0,0,0) 80%);
+      filter: blur(2px);
+      z-index: 0;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .book {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      border-radius: 24px;
+      box-shadow: 0 6px 24px 0px #0006, 0 1px 3px 0 #2a378f33;
+      overflow: visible;
+      z-index: 1;
+    }
+    .cover {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 24px;
+      background: linear-gradient(120deg, #1e90ff 0%, #3e2e7e 70%, #8e6ee8 99%);
+      box-shadow: 0 4px 15px 0 #22336699, 0 1px 2px 0 #1e2c5933;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 98%;
+      height: 96%;
+      margin: 2% 1%;
+      background: linear-gradient(90deg, #fff 80%, #f6f6f8 100%);
+      border-radius: 18px;
+      box-shadow: 0 0.5px 3px 0 #2223, 0 1.5px 12px #a9b3d933;
+      transform-origin: left center;
+      opacity: 1;
+      z-index: 1;
+      pointer-events: none;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .page::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      border-radius: 18px;
+      box-shadow: 0 0px 16px 0 #0003 inset, 0 0.5px 3px 0 #fff9 inset;
+      opacity: 0.3;
+    }
+    .page.page6 {
+      background: linear-gradient(80deg, #eaf2ff 20%, #c2e6ff 100%);
+    }
+    .loading-text {
+      position: absolute;
+      bottom: -38px;
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      font-size: 1.18em;
+      letter-spacing: 2px;
+      font-family: inherit;
+      text-shadow: 0 1px 4px #1a1e3b99, 0 0px 1.5px #fff9;
+      z-index: 12;
+      font-weight: bold;
+      user-select: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="book-container">
+    <div class="book-shadow"></div>
+    <div class="book">
+      <div class="cover"></div>
+      <div class="page page2"></div>
+      <div class="page page3"></div>
+      <div class="page page4"></div>
+      <div class="page page5"></div>
+      <div class="page page6"></div>
+    </div>
+    <span class="loading-text">Loading</span>
+  </div>
+  <script>
+    // اطلاعات صفحات: شروع و پایان ورق خوردن (ثانیه)
+    const pageFlips = [
+      { selector: '.page2', flipStart: 0,  flipEnd: 3,   restUntil: 20 },
+      { selector: '.page3', flipStart: 15, flipEnd: 18,  restUntil: 35 },
+      { selector: '.page4', flipStart: 30, flipEnd: 33,  restUntil: 50 },
+      { selector: '.page5', flipStart: 45, flipEnd: 48,  restUntil: 65 },
+    ];
+    const cycleLength = 65; // ثانیه
+    // صفحه 6 (پایانی) همیشه باز است
+
+    // زاویه اولیه چرخش
+    const initialAngle = 180, finalAngle = 0;
+    const initialOpacity = 1, finalOpacity = 0.1;
+
+    const pageEls = pageFlips.map(f => document.querySelector(f.selector));
+    const coverEl = document.querySelector('.cover');
+    const page6 = document.querySelector('.page6');
+
+    // اولویت نمایش صفحات
+    function setZIndexes() {
+      pageEls.forEach((el, i) => el.style.zIndex = 10-i);
+      coverEl.style.zIndex = 15;
+      page6.style.zIndex = 1;
+    }
+    setZIndexes();
+
+    function animate() {
+      const now = performance.now() / 1000;
+      const t = now % cycleLength;
+
+      // صفحه ۶ همیشه باز
+      page6.style.transform = `rotateY(0deg)`;
+      page6.style.opacity = 1;
+
+      // جلد بالا
+      coverEl.style.transform = 'none';
+      coverEl.style.opacity = 1;
+
+      // هر صفحه را انیمیت کن
+      pageFlips.forEach((spec, idx) => {
+        const el = pageEls[idx];
+        let state = 'before'; // before, flipping, after
+        if (t < spec.flipStart) {
+          state = 'before';
+        } else if (t >= spec.flipStart && t <= spec.flipEnd) {
+          state = 'flipping';
+        } else if (t > spec.flipEnd && t < spec.restUntil) {
+          state = 'after';
+        } else {
+          // چرخه بعدی، برگرد به قبل
+          state = 'before';
+        }
+        if (state === 'before') {
+          el.style.transform = `rotateY(${initialAngle}deg)`;
+          el.style.opacity = initialOpacity;
+          el.style.boxShadow = '0 0.5px 6px 0 #051e3e55, 0 1.5px 24px #a9b3d955';
+        } else if (state === 'flipping') {
+          // زمان نسبی ورق خوردن
+          let flipT = (t - spec.flipStart) / (spec.flipEnd - spec.flipStart);
+          let angle = initialAngle + (finalAngle - initialAngle) * flipT;
+          let opacity = initialOpacity + (finalOpacity - initialOpacity) * flipT;
+          el.style.transform = `rotateY(${angle}deg)`;
+          el.style.opacity = opacity;
+          // سایه متغیر
+          const shadowIntensity = Math.round(85 * (1 - flipT));
+          el.style.boxShadow = `0 0.5px 6px 0 #051e3e${shadowIntensity.toString(16)}, 0 1.5px 24px #a9b3d9${shadowIntensity.toString(16)}`;
+        } else if (state === 'after') {
+          el.style.transform = `rotateY(${finalAngle}deg)`;
+          el.style.opacity = finalOpacity;
+          el.style.boxShadow = '0 0.5px 2px 0 #051e3e22, 0 1.5px 10px #a9b3d922';
+        }
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
