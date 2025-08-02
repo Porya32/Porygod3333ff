@@ -1,0 +1,140 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Server Animation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: radial-gradient(circle at center, #090e21, #01010a);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: sans-serif;
+    }.scene {
+  position: relative;
+  width: 300px;
+  height: 400px;
+  perspective: 1000px;
+}
+
+.server {
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(145deg, #3c4fff, #9a38d5);
+  border-radius: 20px;
+  box-shadow: 0 0 40px rgba(93, 0, 255, 0.5);
+  transform: rotateX(15deg);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glass-elements {
+  position: absolute;
+  width: 60px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+.glass-elements.left {
+  left: -80px;
+}
+.glass-elements.right {
+  right: -80px;
+}
+
+.energy-line {
+  position: absolute;
+  width: 2px;
+  height: 120%;
+  background: linear-gradient(45deg, #00ffff, #ff00ff);
+  opacity: 0.4;
+  transform: rotate(-25deg);
+}
+.energy-line:nth-child(1) { left: 20%; }
+.energy-line:nth-child(2) { left: 40%; }
+.energy-line:nth-child(3) { left: 60%; }
+.energy-line:nth-child(4) { left: 80%; }
+
+.particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff69f2, #6affd2);
+  animation: floatUp 2.5s linear infinite;
+  filter: drop-shadow(0 0 4px white);
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-200px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+.layered-mask {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  mask-image: radial-gradient(circle, black 30%, transparent 70%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+}
+
+.highlight {
+  position: absolute;
+  width: 80px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  filter: blur(4px);
+}
+
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div class="glass-elements left"></div>
+    <div class="glass-elements right"></div><div class="server">
+  <div class="highlight"></div>
+</div>
+
+<div class="layered-mask"></div>
+
+<!-- خطوط انرژی -->
+<div class="energy-line" style="left: 10%"></div>
+<div class="energy-line" style="left: 30%"></div>
+<div class="energy-line" style="left: 50%"></div>
+<div class="energy-line" style="left: 70%"></div>
+
+<!-- ذرات انرژی -->
+<div class="particle" style="left: 20%; animation-delay: 0s;"></div>
+<div class="particle" style="left: 40%; animation-delay: 0.3s;"></div>
+<div class="particle" style="left: 60%; animation-delay: 0.6s;"></div>
+<div class="particle" style="left: 80%; animation-delay: 0.9s;"></div>
+<div class="particle" style="left: 30%; animation-delay: 1.2s;"></div>
+<div class="particle" style="left: 50%; animation-delay: 1.5s;"></div>
+<div class="particle" style="left: 70%; animation-delay: 1.8s;"></div>
+<div class="particle" style="left: 10%; animation-delay: 2.1s;"></div>
+<div class="particle" style="left: 90%; animation-delay: 2.4s;"></div>
+
+  </div>
+</body>
+</html>
